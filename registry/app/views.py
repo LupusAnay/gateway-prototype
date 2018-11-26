@@ -64,5 +64,10 @@ def register():
 
 
 @registry_blueprint.route('/unregister')
+@validate_schema(register_schema)
 def unregister():
-    pass
+    port = request.get_json().port
+    host = request.host_url
+    Instance.query.filter_by(port=port, host=host).delete()
+    db.session.commit()
+    return response(204)
