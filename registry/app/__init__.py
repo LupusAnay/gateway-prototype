@@ -8,9 +8,12 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
     CORS(app)
+    app.logger.info('app created')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
 
-    from registry.app.views import registry_blueprint
+    from app.views import registry_blueprint
     app.register_blueprint(registry_blueprint)
     return app

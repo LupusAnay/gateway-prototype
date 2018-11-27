@@ -1,4 +1,4 @@
-from registry.app import db
+from app import db
 
 
 class Service(db.Model):
@@ -16,13 +16,19 @@ class Instance(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     service_id = db.Column(db.Integer,
-                           db.ForeignKey('service.id'),
+                           db.ForeignKey('services.id'),
                            nullable=False)
     host = db.Column(db.String, nullable=False, default='http://localhost')
     port = db.Column(db.Integer, nullable=False)
 
     service = db.relationship('Service',
                               backref=db.backref('posts', lazy=True))
+
+    def as_dict(self):
+        return {
+            'host': self.host,
+            'port': self.port
+        }
 
     def __init__(self, host, port, service_id):
         self.host = host
