@@ -1,8 +1,8 @@
 from flask import Blueprint, make_response, jsonify, request
 from flask.views import MethodView
 
-from ..app import db, bcrypt
-from ..app.models import User
+from . import db, bcrypt
+from .models import User
 
 auth_blueprint = Blueprint('auth', __name__)
 
@@ -35,7 +35,8 @@ class RegisterAPI(MethodView):
 
         response = {
             'result': 'success',
-            'token': str(user.encode_auth_token(user.id, post_data.get('role')))
+            'token': str(user.encode_auth_token(user.id,
+                                                post_data.get('role')))
         }
 
         return make_response(jsonify(response)), 200

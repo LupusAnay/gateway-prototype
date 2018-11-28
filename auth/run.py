@@ -1,3 +1,5 @@
+import os
+
 from flask_migrate import Migrate, MigrateCommand
 from flask.cli import FlaskGroup
 
@@ -8,6 +10,7 @@ app = create_app()
 migrate = Migrate(app, db)
 cli = FlaskGroup(app)
 app.cli.add_command('db', MigrateCommand)
+cli.load_dotenv = os.getenv('FLASK_LOAD_DOTENV', 'False')
 
 
 @cli.command('recreate_db')
