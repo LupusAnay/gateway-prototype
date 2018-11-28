@@ -14,6 +14,6 @@ def create_app():
 
     db.init_app(app)
 
-    from app.views import registry_blueprint
-    app.register_blueprint(registry_blueprint)
+    from app.views import instance_blueprint
+    app.register_blueprint(instance_blueprint)
     return app
