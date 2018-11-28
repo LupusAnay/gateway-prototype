@@ -1,11 +1,13 @@
-from datetime import datetime, timedelta
-
 import jwt
-from app import db, bcrypt
+
+from datetime import datetime, timedelta
+from flask import current_app
+
+from . import db, bcrypt
 
 
 class User(db.Model):
-    __tablename__ = "users"
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user = db.Column(db.String(255), nullable=False)
@@ -32,14 +34,17 @@ class User(db.Model):
                 'sub': user_id,
                 'role': role
             }
-            return jwt.encode(payload, 'SECRET_KEY', algorithm='HS256')
+            return jwt.encode(payload,
+                              current_app.config.get['SECRET_KEY'],
+                              algorithm='HS256')
         except Exception as e:
             return e
 
     @staticmethod
     def decode_auth_token(auth_token):
         try:
-            payload = jwt.decode(auth_token, 'SECRET_KEY')
+            payload = jwt.decode(auth_token,
+                                 current_app.config.get['SECRET_KEY'])
             return payload['sub']
         except jwt.ExpiredSignatureError:
             return 'Signature expired. Please log in again.'
