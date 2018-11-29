@@ -22,8 +22,9 @@ def create_app(config_filename='app.config.DevelopmentConfig'):
     bcrypt.init_app(app)
     db.init_app(app)
 
-    from .views import auth_blueprint
-    app.register_blueprint(auth_blueprint)
+    from .views import session_blueprint, users_blueprint
+    app.register_blueprint(session_blueprint)
+    app.register_blueprint(users_blueprint)
 
     @app.shell_context_processor
     def ctx():
