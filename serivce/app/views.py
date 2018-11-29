@@ -20,7 +20,9 @@ def require_auth(role=''):
                 return make_response(jsonify({'error': 'role_error',
                                               'token': payload}))
             return f(*args, **kwargs)
+
         return wrapped_f
+
     return wrap
 
 
