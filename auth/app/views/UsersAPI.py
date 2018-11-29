@@ -3,7 +3,7 @@ from flask.views import MethodView
 from sqlalchemy import exc
 
 from . import create_response, validate_json, require_auth
-from .. import db
+from .. import db, bcrypt
 from ..models import User
 
 register_schema = {
@@ -94,6 +94,9 @@ class UsersAPI(MethodView):
             token is invalid
         """
         data = request.get_json()
+        if 'password' in data:
+            pw = data['password']
+            data['password'] = bcrypt.generate_password_hash(pw, 5).decode()
         token = request.headers.get('Authorization').replace('Bearer ', '')
         payload = User.decode_auth_token(token)
         if payload['username'] == username:
@@ -120,4 +123,15 @@ class UsersAPI(MethodView):
         :return: Returning 204 if user deleted or 404 if there is no such user
             or 403 if client do not have rights to delete user
         """
-        return create_response()
+        token = request.headers.get('Authorization').replace('Bearer ', '')
+        payload = User.decode_auth_token(token)
+        if payload['username'] == username:
+            try:
+                User.query.filter_by(username=username).delete()
+                db.session.commit()
+            except exc.IntegrityError:
+                db.session.rollback()
+                return create_response(400, status='error')
+            return create_response()
+
+        return create_response(403, status='error', message='forbidden')
