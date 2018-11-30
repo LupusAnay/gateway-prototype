@@ -37,7 +37,7 @@ class SessionAPI(MethodView):
             if bcrypt.check_password_hash(user.password, password):
                 token = user.encode_auth_token().decode()
                 current_app.logger.info('Detected user login')
-                return create_response(code=200, token=token)
+                return create_response(code=200, jwt=token)
 
         current_app.logger.info("User's login rejected")
         return create_response(code=404,
@@ -55,6 +55,6 @@ class SessionAPI(MethodView):
         Blacklisting user's token.
         :return: Returning 403 if token is invalid
         """
-        current_app.logger.warn('Attempt to logout. '
-                                'Not implemented, request has no effect')
+        current_app.logger.warning('Attempt to logout. '
+                                   'Not implemented, request has no effect')
         return create_response(202, status='none')

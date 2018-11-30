@@ -21,13 +21,16 @@ def require_auth(role='user'):
     def wrap(f):
         @wraps(f)
         def wrapped_f(*args, **kwargs):
+            current_app.logger.info('Attempt to access to protected resource')
             header = request.headers.get('Authorization')
             if header is not None:
                 token = header.replace('Bearer ', '')
                 payload = User.decode_auth_token(token)
                 if type(payload) is dict:
+                    current_app.logger.info('Access granted')
                     return f(*args, **kwargs)
 
+            current_app.logger.info('Attempt rejected, invalid token')
             return create_response(403, status='error', message='forbidden')
 
         return wrapped_f

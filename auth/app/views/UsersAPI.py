@@ -7,21 +7,21 @@ from .. import db, bcrypt
 from ..models import User
 
 register_schema = {
-    "type": "object",
-    "properties": {
-        "username": {"type": "string"},
-        "password": {"type": "string"},
-        "email": {"type": "string", "format": "email"}
+    'type': 'object',
+    'properties': {
+        'username': {'type': 'string'},
+        'password': {'type': 'string'},
+        'email': {'type': 'string', 'format': 'email'}
     },
-    "required": ["username", "password", "email"]
+    'required': ['username', 'password', 'email']
 }
 
 update_schema = {
-    "type": "object",
-    "properties": {
-        "username": {"type": "string"},
-        "password": {"type": "string"},
-        "email": {"type": "string", "format": "email"}
+    'type': 'object',
+    'properties': {
+        'username': {'type': 'string'},
+        'password': {'type': 'string'},
+        'email': {'type': 'string', 'format': 'email'}
     }
 }
 
@@ -39,12 +39,20 @@ class UsersAPI(MethodView):
         """
         current_app.logger.info('Attempt to get info about user')
 
+        token = request.headers.get('Authorization').replace('Bearer ', '')
+        payload = User.decode_auth_token(token)
+        if payload['username'] != username:
+            current_app.logger.info('Attempt rejected, wrong username')
+            return create_response(403, status='error', message='forbidden')
+
         user = User.query.filter_by(username=username).first()
         if user is None:
+            current_app.logger.info('Attempt rejected, no such user')
             return create_response(404, status='error', message='not found')
 
         user_dict = user.as_dict()
         user_dict.pop('password')
+        current_app.logger.info('User info returned')
         return create_response(200, status='success', user_info=user_dict)
 
     @staticmethod
@@ -93,6 +101,7 @@ class UsersAPI(MethodView):
             conflict or 404 in there is no user with such username, or 403 if
             token is invalid
         """
+        current_app.logger.info('Attempt to change user data')
         data = request.get_json()
         if 'password' in data:
             pw = data['password']
@@ -105,9 +114,12 @@ class UsersAPI(MethodView):
                 db.session.commit()
             except exc.IntegrityError:
                 db.session.rollback()
+                current_app.logger.info('Attempt rejected. Data conflict')
                 return create_response(409, status='error')
+            current_app.logger.info('User data changed')
             return create_response()
 
+        current_app.logger.info('Attempt rejected. Insufficient rights')
         return create_response(403, status='error', message='forbidden')
 
     @staticmethod
@@ -123,6 +135,7 @@ class UsersAPI(MethodView):
         :return: Returning 204 if user deleted or 404 if there is no such user
             or 403 if client do not have rights to delete user
         """
+        current_app.logger.info('Attempt to delete user')
         token = request.headers.get('Authorization').replace('Bearer ', '')
         payload = User.decode_auth_token(token)
         if payload['username'] == username:
@@ -131,7 +144,10 @@ class UsersAPI(MethodView):
                 db.session.commit()
             except exc.IntegrityError:
                 db.session.rollback()
+                current_app.logger.info('Attempt rejected. Data conflict')
                 return create_response(400, status='error')
+            current_app.logger.info('User deleted')
             return create_response()
 
+        current_app.logger.info('Attempt rejected. Insufficient rights')
         return create_response(403, status='error', message='forbidden')
