@@ -1,17 +1,8 @@
 import json
 
-from flask import Response, current_app
-from .base_test_case import BaseTestCase
-
-
-def register_user(self, username, password, email) -> Response:
-    response = self.client.post("/users",
-                                data=json.dumps(dict(username=username,
-                                                     password=password,
-                                                     email=email)
-                                                ),
-                                content_type='application/json')
-    return response
+from flask import current_app
+from auth.tests.base_test_case import BaseTestCase
+from auth.tests.api_methods import register_user
 
 
 class TestCreateUser(BaseTestCase):
