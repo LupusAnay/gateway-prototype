@@ -32,6 +32,8 @@ class UsersAPI(MethodView):
     def get(username):
         """
         Returning user info object
+        This request is 'self_only', the request can be executed only if the
+        bearers's username is the same as the parameter `username`
 
         :param username: Username of user about whom info need to be returned
         :return: Returning user info structure or 404 if user not found, or 403

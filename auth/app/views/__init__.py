@@ -65,7 +65,8 @@ def validate_json(schema):
             try:
                 validate(request.get_json(), schema)
             except ValidationError as e:
-                current_app.logger.info('User provided wrong json schema')
+                current_app.logger.info(
+                    f'User provided wrong json schema: {request.get_json()}')
                 return create_response(422, status='error',
                                        reason='Invalid json',
                                        message=e.message)

@@ -1,4 +1,4 @@
-from flask import Response
+from flask import Response, current_app
 import json
 
 
@@ -33,3 +33,9 @@ def get_user_info(self, token, username):
     return self.client.get(f'/users/{username}',
                            headers=dict(authorization=f'Bearer {token}'))
 
+
+def update_user(self, token, username, new_info: dict) -> Response:
+    return self.client.put(f'/users/{username}',
+                           data=json.dumps(new_info),
+                           content_type='application/json',
+                           headers=dict(authorization=f'Bearer {token}'))
