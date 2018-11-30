@@ -28,8 +28,7 @@ class User(db.Model):
         return {c.key: getattr(self, c.key)
                 for c in inspect(self).mapper.column_attrs}
 
-    # For Prototype. Need proper role realization
-    # TODO: DO NOT FORGET ABOUT ROLE
+    # TODO: Implement role functional
     def encode_auth_token(self):
         try:
             payload = {
