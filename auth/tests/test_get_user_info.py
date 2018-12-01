@@ -2,7 +2,7 @@ import json
 
 from jsonschema import validate
 from auth.tests.base_test_case import BaseTestCase
-from auth.tests.api_methods import get_user_info, register_user
+from auth.tests.api_methods import get_user_info, register_user, delete_user
 
 info_schema = {
     'type': 'object',
@@ -47,3 +47,9 @@ class TestGetUserInfo(BaseTestCase):
 
         self.assertEqual(response_wrong_user.status_code, 403)
         self.assertEqual(response_wrong_token.status_code, 403)
+
+    def test_get_info_without_user(self):
+        delete_user(self, self.token, 'user')
+        response = get_user_info(self, self.token, 'user')
+
+        self.assert404(response)

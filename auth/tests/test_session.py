@@ -37,3 +37,10 @@ class TestSession(BaseTestCase):
         response = logout(self, self.token)
 
         self.assertEqual(response.status_code, 204)
+
+    def test_login_with_invalid_json(self):
+        response = self.client.post('/session',
+                                    data=json.dumps('wrong_data'),
+                                    content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)

@@ -37,3 +37,11 @@ class TestUpdateUser(BaseTestCase):
         response = update_user(self, self.token, 'user', new_info)
 
         self.assertEqual(response.status_code, 422)
+
+    def test_update_with_taken_data(self):
+        new_info = dict(email='mail@mail.com',
+                        username='wrong_user',
+                        password='new_pass')
+        response = update_user(self, self.token, 'user', new_info)
+
+        self.assertEqual(response.status_code, 409)

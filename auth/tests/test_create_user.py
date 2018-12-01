@@ -27,3 +27,10 @@ class TestCreateUser(BaseTestCase):
 
         self.assertTrue(data is not None)
         self.assertEqual(data['status'], 'error')
+
+    def test_register_with_invalid_json(self):
+        response = self.client.post("/users",
+                                    data=json.dumps("wrong_data"),
+                                    content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)
