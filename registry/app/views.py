@@ -29,6 +29,7 @@ def validate_schema(schema):
             try:
                 validate(request.get_json(), schema)
             except ValidationError as e:
+                print(e.message)
                 return response(400, status='error',
                                 reason='wrong json',
                                 message=e.message)

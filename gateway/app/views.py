@@ -1,27 +1,25 @@
 import requests
 from flask import Blueprint, make_response, request
 
+proxy_blueprint = Blueprint('proxy', __name__)
 
-class Service:
-    def __init__(self, host, proxy_route, name):
-        self.blueprint = Blueprint(name, __name__)
-        self.host = host
-        self.name = name
-        self.methods = ['GET', 'POST', 'PUT', 'DELETE']
+app_methods = ['GET', 'POST', 'PUT', 'DELETE']
 
-        @self.blueprint.route(f'/{proxy_route}/',
-                              defaults={'path': ''},
-                              methods=self.methods)
-        @self.blueprint.route(f'/{proxy_route}/<path:path>',
-                              methods=self.methods)
-        def service_request(path):
-            print('Making post request to:', f'{self.host}{path}')
-            resp = requests.request(
-                method=request.method,
-                url=f'{self.host}{path}',
-                headers={key: value for (key, value) in request.headers if
-                         key != 'Host'},
-                data=request.get_data(),
-                cookies=request.cookies,
-                allow_redirects=False)
-            return make_response(resp.content)
+
+@proxy_blueprint.route('/<string:name>/', defaults={'path': ''},
+                       methods=app_methods)
+@proxy_blueprint.route('/<string:name>/<path:path>',
+                       methods=app_methods)
+def service_request(name, path):
+    instances = requests.get(f'http://localhost:5000/instance/{name}')
+    data = instances.json()
+    instance = data.get('instances')[0]
+    resp = requests.request(
+        method=request.method,
+        url=f"http://{instance.get('host')}:{instance.get('port')}/{path}",
+        headers={key: value for key, value in request.headers
+                 if key != 'Host'},
+        data=request.get_data(),
+        allow_redirects=False)
+
+    return make_response(resp.content, resp.status_code)

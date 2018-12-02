@@ -80,7 +80,7 @@ class UsersAPI(MethodView):
             db.session.commit()
         except exc.IntegrityError:
             db.session.rollback()
-            current_app.logger.info('Rejecting attempt to create a new user.'
+            current_app.logger.info('Rejecting attempt to create a new user. '
                                     'Such user already exists')
             return create_response(409, status='error', message='email taken')
 
