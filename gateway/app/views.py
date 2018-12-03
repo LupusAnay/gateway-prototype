@@ -11,9 +11,12 @@ app_methods = ['GET', 'POST', 'PUT', 'DELETE']
 @proxy_blueprint.route('/<string:name>/<path:path>',
                        methods=app_methods)
 def service_request(name, path):
+
     instances = requests.get(f'http://localhost:5000/instance/{name}')
     data = instances.json()
+
     instance = data.get('instances')[0]
+
     resp = requests.request(
         method=request.method,
         url=f"http://{instance.get('host')}:{instance.get('port')}/{path}",
